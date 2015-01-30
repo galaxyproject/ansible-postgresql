@@ -1,0 +1,9 @@
+##
+## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
+##
+
+{% if postgresql_conf is defined %}
+{% for opt in postgresql_conf %}
+{{ opt }} = {{ postgresql_conf[opt] }}
+{% endfor %}
+{% endif %}

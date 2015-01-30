@@ -1,0 +1,19 @@
+#!/bin/sh
+##
+## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
+##
+
+xlog_dir='{{ postgresql_pgdata }}/pg_xlog'
+backup_dir='{{ postgresql_backup_active_dir }}'
+mailto='{{ postgresql_backup_mail_recipient }}'
+
+active=`ls -1rt $xlog_dir | tail -1`
+
+out=`cp -p $xlog_dir/$active $backup_dir/$active 2>&1`
+ret=$?
+
+if [ $ret != 0 ]; then
+    (echo "cp failed with code $ret:" ; echo "$out") | mail -s "`hostname`: WAL backup failed" $mailto
+fi
+
+exit $ret

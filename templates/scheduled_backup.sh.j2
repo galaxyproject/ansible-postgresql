@@ -1,0 +1,99 @@
+#!/bin/bash
+##
+## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
+##
+
+server=`hostname`
+data='{{ postgresql_pgdata }}'
+dir="{{ postgresql_backup_dir }}/$server/current"
+old="{{ postgresql_backup_dir }}/$server/previous"
+older="{{ postgresql_backup_dir }}/$server/older"
+mailto='{{ postgresql_backup_mail_recipient }}'
+mutex="{{ postgresql_backup_local_dir }}/nightlymutex"
+
+handler()
+{
+    command=$@
+    out=`$command 2>&1`
+    ret=$?
+    if [ $ret != 0 ]; then
+        (echo "execuing $command failed with code $ret:" ; echo "$out") | mail -s "$server: Postgres nightly backup failed" $mailto
+        rm -f $mutex
+        if [ "$backup_started" = 1 ]; then
+            echo "SELECT pg_stop_backup();" | psql
+        fi
+        exit 1
+    else
+        if [ -n "$out" ]; then
+            echo "$out"
+        fi
+    fi
+}
+
+psql_handler()
+{
+    sql=$@
+    out=`echo "$sql" | psql 2>&1`
+    ret=$?
+    if [ $ret != 0 ]; then
+        (echo "executing $sql failed with code $ret:" ; echo "$out") | mail -s "$server: Postgres nightly backup failed" $mailto
+        rm -f $mutex
+        exit 1
+    else
+        probe=`echo "$out" | grep ERROR`
+        ret=$?
+        if [ $ret = 0 ]; then
+            (echo "executing sql $sql failed:" ; echo "$out") | mail -s "$server: Postgres nightly backup failed" $mailto
+            rm -f $mutex
+            exit 1
+        #else
+        #    if [ -n "$out" ]; then
+        #        echo $out
+        #    fi
+        fi
+    fi
+}
+
+[ ! -d `dirname $mutex` ] && handler mkdir -p `dirname $mutex`
+
+while [ -f $mutex ]; do
+    sleep 5
+done
+
+start=`date +%s`
+
+echo "nightly $$" > $mutex
+
+# remove oldest backup
+if [ -d $older ]; then
+    handler rm -rf $older
+fi
+
+# move old backup to older backup
+if [ -d $old ]; then
+    handler mv $old $older
+fi
+
+# move current backup to old backup
+if [ -d $dir ]; then
+    handler mv $dir $old
+fi
+
+# set up new directory
+handler mkdir -p $dir
+
+# tell postgres we'll be backing up
+psql_handler "SELECT pg_start_backup('$dir');"
+backup_started=1
+
+# begin the backup
+handler rsync -a --exclude pg_xlog $data/ $dir
+
+# tell postgres we're done
+psql_handler "SELECT pg_stop_backup();"
+
+echo "Elapsed time: $(( `date +%s` - $start )) seconds" | mail -s "$server: Postgres nightly backup succeeded" $mailto
+
+# exit normally
+rm -f $mutex
+exit 0

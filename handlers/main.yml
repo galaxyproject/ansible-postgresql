@@ -1,0 +1,4 @@
+---
+
+- name: Reload PostgreSQL
+  service: name={{ postgresql_service_name }} state=reloaded

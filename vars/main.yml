@@ -1,0 +1,15 @@
+---
+
+# maps ansible_distribution to the pgdg repository package name
+postgresql_pgdg_dists:
+  RedHat: redhat
+  CentOS: centos
+  Scientific: sl
+  SLC: sl
+  OracleLinux: oraclelinux
+
+postgresql_pgdg_families:
+  Fedora: fedora
+
+postgresql_pgdg_shortfamilies:
+  Fedora: fedora

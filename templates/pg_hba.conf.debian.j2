@@ -1,0 +1,34 @@
+##
+## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
+##
+
+{% if postgresql_pg_hba_local_postgres_user is not defined or postgresql_pg_hba_local_postgres_user %}
+# DO NOT DISABLE!
+# If you change this first entry you will need to make sure that the
+# database superuser can access the database using some other method.
+# Noninteractive access to all databases is required during automatic
+# maintenance (custom daily cronjobs, replication, and similar tasks).
+#
+# Database administrative login by Unix domain socket
+local   all             postgres                                peer
+{% endif %}
+
+{% if postgresql_pg_hba_local_socket is not defined or postgresql_pg_hba_local_socket %}
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+{% endif %}
+{% if postgresql_pg_hba_local_ipv4 is not defined or postgresql_pg_hba_local_ipv4 %}
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+{% endif %}
+{% if postgresql_pg_hba_local_ipv6 is not defined or postgresql_pg_hba_local_ipv6 %}
+# IPv6 local connections:
+host    all             all             ::1/128                 md5
+{% endif %}
+
+# Entries configured in postgresql_pg_hba_conf follow
+{% if postgresql_pg_hba_conf is defined %}
+{% for line in postgresql_pg_hba_conf %} 
+{{ line }}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,47 @@
+---
+
+# Convenient ordering - debian.yml sets postgresql_version if it is unset,
+# which is needed by the include_vars files.
+- include: debian.yml
+  when: ansible_os_family == "Debian"
+
+# For RedHat we use the value from defaults/main.yml
+- name: Set version fact
+  set_fact: postgresql_version={{ postgresql_default_version }}
+  when: ansible_os_family == "RedHat" and postgresql_version is not defined
+
+# Sets postgresql_pgdata_dir, postgresql_conf_dir
+- include_vars: "{{ ansible_os_family | lower }}.yml"
+
+- name: Set pgdata fact
+  set_fact: postgresql_pgdata={{ postgresql_pgdata_default }}
+  when: postgresql_pgdata is not defined
+
+- name: Set conf dir fact
+  set_fact: postgresql_conf_dir={{ postgresql_conf_dir_default }}
+  when: postgresql_conf_dir is not defined
+
+# Needs postgresql_pgdata_dir set
+- include: redhat.yml
+  when: ansible_os_family == "RedHat"
+
+- name: Create conf.d
+  file: path={{ postgresql_conf_dir }}/conf.d state=directory owner=postgres group=postgres
+
+- name: Set conf.d include in postgresql.conf
+  lineinfile: line="include_dir 'conf.d'" dest={{ postgresql_conf_dir }}/postgresql.conf backup=yes
+  notify: Reload PostgreSQL
+
+- name: Set config options
+  template: src=25ansible_postgresql.conf.j2 dest={{ postgresql_conf_dir }}/conf.d/25ansible_postgresql.conf owner=postgres group=postgres backup=yes
+  notify: Reload PostgreSQL
+
+- name: Install pg_hba.conf
+  template: src=pg_hba.conf.{{ ansible_os_family | lower }}.j2 dest={{ postgresql_conf_dir }}/pg_hba.conf owner=postgres group=postgres mode=0400 backup=yes
+  notify: Reload PostgreSQL
+
+- include: backup.yml
+  when: postgresql_backup_dir is defined
+
+- name: Ensure PostgreSQL is running
+  service: name={{ postgresql_service_name }} enabled=yes state=started

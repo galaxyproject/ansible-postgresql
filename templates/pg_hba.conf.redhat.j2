@@ -1,0 +1,23 @@
+##
+## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
+##
+
+{% if postgresql_pg_hba_local_socket is not defined or postgresql_pg_hba_local_socket %}
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+{% endif %}
+{% if postgresql_pg_hba_local_ipv4 is not defined or postgresql_pg_hba_local_ipv4 %}
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            ident
+{% endif %}
+{% if postgresql_pg_hba_local_ipv6 is not defined or postgresql_pg_hba_local_ipv6 %}
+# IPv6 local connections:
+host    all             all             ::1/128                 ident
+{% endif %}
+
+# Entries configured in postgresql_pg_hba_conf follow
+{% if postgresql_pg_hba_conf is defined %}
+{% for line in postgresql_pg_hba_conf %}
+{{ line }}
+{% endfor %}
+{% endif %}

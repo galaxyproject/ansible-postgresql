@@ -1,0 +1,22 @@
+---
+
+- name: Install pgdg package signing key (Debian/pgdg)
+  apt_key: keyserver=pgp.mit.edu id=ACCC4CF8
+  when: postgresql_flavor is defined and postgresql_flavor == "pgdg"
+  
+- name: Install pgdg repository (Debian/pgdg)
+  apt_repository: repo="deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main" update_cache=yes
+  when: postgresql_flavor is defined and postgresql_flavor == "pgdg"
+
+- name: Install PostgreSQL (Debian)
+  apt: name=postgresql{{ '-' ~ postgresql_version if postgresql_version is defined else '' }}
+
+- name: Get installed version
+  command: dpkg-query -f ${Version;3} --show postgresql
+  when: postgresql_version is not defined
+  register: postgresql_version_query
+  changed_when: false
+
+- name: Set version fact
+  set_fact: postgresql_version={{ postgresql_version_query.stdout }}
+  when: postgresql_version is not defined

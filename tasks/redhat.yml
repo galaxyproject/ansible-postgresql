@@ -1,0 +1,40 @@
+---
+
+# Using the rpm URL format of the yum module causes Ansible to download the rpm
+# every time to check whether it's installed, so, don't do that.
+- name: Check pgdg repository package (RedHat)
+  yum: name=pgdg-{{ postgresql_pgdg_dists[ansible_distribution] }}{{ postgresql_version | replace('.', '') }}
+  register: repo_pkg_installed
+  ignore_errors: yes
+
+# URLs for Fedora look like:
+#   http://yum.postgresql.org/<pg_version>/fedora/fedora-<os_major_version>-<arch>/pgdg-fedora<pg_version_without_period>-<pg_version>-<rpm_release_version>.noarch.rpm
+# URLs for RedHat and all derivatives look like:
+#   http://yum.postgresql.org/<pg_version>/redhat/rhel-<os_major_version>-<arch>/pgdg-<dist><pg_version_without_period>-<pg_version>-<rpm_release_version>.noarch.rpm
+
+# There's no direct way to determine the latest pacakge, so we have to use a
+# helper script to parse the directory list and figure it out.
+- name: Determine latest pgdg repository package (RedHat)
+  script: get_repo_rpm_release.py http://yum.postgresql.org/{{ postgresql_version }}/{{ postgresql_pgdg_families[ansible_distribution] | default("redhat") }}/{{ postgresql_pgdg_shortfamilies[ansible_distribution] | default("rhel") }}-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/ {{ postgresql_pgdg_dists[ansible_distribution] }}
+  register: pgdg_repo_pkg_release
+  when: repo_pkg_installed.failed is defined and repo_pkg_installed.failed
+
+- name: Install pgdg repository package (RedHat)
+  yum: name=http://yum.postgresql.org/{{ postgresql_version }}/{{ postgresql_pgdg_families[ansible_distribution] | default("redhat") }}/{{ postgresql_pgdg_shortfamilies[ansible_distribution] | default("rhel") }}-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/pgdg-{{ postgresql_pgdg_dists[ansible_distribution] }}{{ postgresql_version | replace('.', '') }}-{{ postgresql_version }}-{{ pgdg_repo_pkg_release.stdout.strip() }}.noarch.rpm
+  when: repo_pkg_installed.failed is defined and repo_pkg_installed.failed
+
+- name: Install PostgreSQL (RedHat)
+  yum: name=postgresql{{ postgresql_version | replace('.', '') }}-server
+
+- name: Check for pgdata directory
+  stat: path={{ postgresql_pgdata }}/base
+  register: pgdata_stat
+  failed_when: false
+
+- name: Initialize database (RedHat < 7)
+  command: /sbin/service postgresql-{{ postgresql_version }} initdb
+  when: ansible_distribution_major_version | int < 7 and (pgdata_stat.stat.isdir is not defined or not pgdata_stat.stat.isdir)
+
+- name: Initialize database (RedHat >= 7)
+  command: /usr/pgsql-{{ postgresql_version }}/bin/postgresql{{ postgresql_version | replace('.', '') }}-setup initdb
+  when: ansible_distribution_major_version | int >= 7 and (pgdata_stat.stat.isdir is not defined or not pgdata_stat.stat.isdir)

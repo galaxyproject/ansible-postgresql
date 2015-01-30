@@ -1,0 +1,9 @@
+##
+## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
+##
+
+{% if postgresql_backup_dir is defined and postgresql_backup_local_dir is defined %}
+wal_level = archive
+archive_mode = on
+archive_command = '{{ postgresql_backup_local_dir | expanduser }}/bin/archive_wal.sh "%p" "%f" main'
+{% endif %}
