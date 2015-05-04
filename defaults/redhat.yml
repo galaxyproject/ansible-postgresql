@@ -1,0 +1,4 @@
+---
+
+postgresql_pgdata_default: /var/lib/pgsql/{{ postgresql_version }}/data
+postgresql_conf_dir_default: /var/lib/pgsql/{{ postgresql_version }}/data
