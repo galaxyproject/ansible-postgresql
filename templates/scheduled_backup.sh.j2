@@ -5,11 +5,10 @@
 
 server=`hostname`
 data='{{ postgresql_pgdata }}'
-dir="{{ postgresql_backup_dir }}/$server/current"
-old="{{ postgresql_backup_dir }}/$server/previous"
-older="{{ postgresql_backup_dir }}/$server/older"
+dir='{{ postgresql_backup_dir }}/current'
 mailto='{{ postgresql_backup_mail_recipient }}'
-mutex="{{ postgresql_backup_local_dir }}/nightlymutex"
+mutex='{{ postgresql_backup_local_dir }}/nightlymutex'
+rotate='{{ postgresql_backup_rotate | default("True") }}'
 
 handler()
 {
@@ -64,19 +63,13 @@ start=`date +%s`
 
 echo "nightly $$" > $mutex
 
-# remove oldest backup
-if [ -d $older ]; then
-    handler rm -rf $older
-fi
-
-# move old backup to older backup
-if [ -d $old ]; then
-    handler mv $old $older
-fi
-
-# move current backup to old backup
+# move previous backup
 if [ -d $dir ]; then
-    handler mv $dir $old
+    if [ $rotate = "True" ]; then
+        handler mv $dir {{ postgresql_backup_dir }}/`date -u +%Y%m%dT%H%M%SZ`
+    else
+        handler rm -rf $dir
+    fi
 fi
 
 # set up new directory

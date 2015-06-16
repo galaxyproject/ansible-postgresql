@@ -4,3 +4,4 @@ postgresql_default_version: 9.4
 postgresql_backup_local_dir: ~postgres/backup
 postgresql_backup_active_dir: "{{ postgresql_backup_local_dir }}/active"
 postgresql_backup_mail_recipient: postgres
+postgresql_backup_rotate: true
