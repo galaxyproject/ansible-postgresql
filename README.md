@@ -117,6 +117,11 @@ Role Variables
 - `postgresql_backup_mail_recipient`: User or address that should receive mail
   from the backup scripts.
 
+- `postgresql_backup_remote_rsync_path`: Path to `rsync` on the remote system.
+
+- `postgresql_backup_post_command`: Arbitrary command to run after successful
+  completion of a scheduled backup.
+
 Dependencies
 ------------
 

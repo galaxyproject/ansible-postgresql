@@ -19,7 +19,7 @@
   notify: Reload PostgreSQL
 
 - name: Schedule backups
-  cron: name="PostgreSQL Backup" cron_file=ansible_postgresql_backup user=postgres hour={{ postgresql_backup_hour | default(1) }} minute={{ postgresql_backup_minute | default(0) }} day={{ postgresql_backup_day | default(omit) }} month={{ postgresql_backup_month | default(omit) }} weekday={{ postgresql_backup_weekday | default(omit) }} job={{ postgresql_backup_local_dir }}/bin/scheduled_backup.sh
+  cron: name="PostgreSQL Backup" cron_file=ansible_postgresql_backup user=postgres hour={{ postgresql_backup_hour | default(1) }} minute={{ postgresql_backup_minute | default(0) }} day={{ postgresql_backup_day | default(omit) }} month={{ postgresql_backup_month | default(omit) }} weekday={{ postgresql_backup_weekday | default(omit) }} job="{{ postgresql_backup_local_dir }}/bin/scheduled_backup.sh{{ ' && ' ~ postgresql_backup_post_command if postgresql_backup_post_command is defined else '' }}"
 
 - name: Schedule PostgreSQL working WAL backup
   cron: name="PostgreSQL WAL Backup" cron_file=ansible_postgresql_walbackup user=postgres job={{ postgresql_backup_local_dir }}/bin/backup_working_wal.sh

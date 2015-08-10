@@ -17,13 +17,15 @@ mutex="{{ postgresql_backup_local_dir }}/walmutex"
 mailto='{{ postgresql_backup_mail_recipient }}'
 mutex_attempts=50
 
+[ '{{ postgresql_backup_remote_rsync_path | default("None") }}' != 'None' ] && remote_rsync='--rsync-path={{ postgresql_backup_remote_rsync_path }}' || remote_rsync=''
+
 handler()
 {
     command=$@
     out=`$command 2>&1`
     ret=$?
     if [ $ret != 0 ]; then
-        (echo "execuing $command failed with code $ret:" ; echo "$out") | mail -s "$server: WAL backup failed" $mailto
+        (echo "execuing $command failed with code $ret:" ; echo "$out") | mail -s "$server: WAL archive failed" $mailto
         rm -f $mutex
         exit 1
     else
@@ -40,7 +42,7 @@ attempt=0
 while [ -f $mutex ]; do
     attempt=`expr $attempt + 1`
     if [ $attempt -gt $mutex_attempts ]; then
-        echo "archive of WAL $file failed, timed out waiting for mutex from `cat $mutex`" | mail -s "$server: WAL backup failed" $mailto
+        echo "archive of WAL $file failed, timed out waiting for mutex from `cat $mutex`" | mail -s "$server: WAL archive failed" $mailto
         exit 1
     fi
     sleep 5
@@ -48,21 +50,24 @@ done
 
 echo "archive-WAL $$" > $mutex
 
-if [ ! -d $backup_dir ]; then
-    handler mkdir -p $backup_dir
-fi
-
-if [ -f $backup_dir/$file ]; then
-    echo "$backup_dir/$file already exists, overwriting is not allowed" | mail -s "$server: WAL backup failed" $mailto
+# If rsync outputs anything to stdout, the destination already existed, which should not happen
+if [ -n "`handler rsync $remote_rsync --ignore-existing -ptg --info=skip1 $full_file $backup_dir`" ]; then
+    echo "$backup_dir/$file already exists, overwriting is not allowed" | mail -s "$server: WAL archive failed" $mailto
+    rm -f $mutex
     exit 1
 fi
 
-handler rsync -ptg $full_file $backup_dir
+# create an empty directory for --delete
+empty=`handler mktemp -d {{ postgresql_backup_local_dir }}/emptyXXXXXX`
 
-handler rm -f $active_dir/*
+# clear the active directory
+handler rsync $remote_rsync -rptg --delete $empty/ $active_dir
+
+# remove the temp empty dir
+handler rmdir $empty
 
 # debug
-#echo "archive of WAL $file succeeded" | mail -s "$server: WAL backup succeeded" $mailto
+#echo "archive of WAL $file succeeded" | mail -s "$server: WAL archive succeeded" $mailto
 
 # exit normally
 rm -f $mutex
