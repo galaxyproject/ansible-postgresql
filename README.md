@@ -96,8 +96,9 @@ Role Variables
 ### Backups ###
 
 - `postgresql_backup_dir`: If set, enables [PITR][postgresql_pitr] backups. Set
-  this to a directory where your database will be backed up. The most recent
-  backup will be in a subdirectory named `current`.
+  this to a directory where your database will be backed up (this can be any
+  format supported by rsync, e.g. `user@host:/path`). The most recent backup
+  will be in a subdirectory named `current`.
 
 - `postgresql_backup_rotate`: Boolean, defaults to `true`, which will cause the
   `current` directory to be renamed prior to creating a new backup. If set to
