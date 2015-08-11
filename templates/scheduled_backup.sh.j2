@@ -7,7 +7,7 @@ server=`hostname`
 data='{{ postgresql_pgdata }}'
 dir='{{ postgresql_backup_dir }}/current'
 mailto='{{ postgresql_backup_mail_recipient }}'
-mutex='{{ postgresql_backup_local_dir }}/nightlymutex'
+mutex='{{ postgresql_backup_local_dir }}/scheduledmutex'
 rotate='{{ postgresql_backup_rotate | default("True") }}'
 
 [ '{{ postgresql_backup_remote_rsync_path | default("None") }}' != 'None' ] && remote_rsync='--rsync-path={{ postgresql_backup_remote_rsync_path }}' || remote_rsync=''
@@ -17,8 +17,8 @@ handler()
     command=$@
     out=`$command 2>&1`
     ret=$?
-    if [ $ret != 0 ]; then
-        (echo "execuing $command failed with code $ret:" ; echo "$out") | mail -s "$server: Postgres nightly backup failed" $mailto
+    if [ $ret -ne 0 -a ! \( $ret -eq 24 -a $1 = 'rsync' \) ]; then
+        (echo "execuing $command failed with code $ret:" ; echo "$out") | mail -s "$server: Postgres scheduled backup failed" $mailto
         rm -f $mutex
         if [ "$backup_started" = 1 ]; then
             echo "SELECT pg_stop_backup();" | psql
@@ -36,15 +36,15 @@ psql_handler()
     sql=$@
     out=`echo "$sql" | psql 2>&1`
     ret=$?
-    if [ $ret != 0 ]; then
-        (echo "executing $sql failed with code $ret:" ; echo "$out") | mail -s "$server: Postgres nightly backup failed" $mailto
+    if [ $ret -ne 0 ]; then
+        (echo "executing $sql failed with code $ret:" ; echo "$out") | mail -s "$server: Postgres scheduled backup failed" $mailto
         rm -f $mutex
         exit 1
     else
         probe=`echo "$out" | grep ERROR`
         ret=$?
-        if [ $ret = 0 ]; then
-            (echo "executing sql $sql failed:" ; echo "$out") | mail -s "$server: Postgres nightly backup failed" $mailto
+        if [ $ret -eq 0 ]; then
+            (echo "executing sql $sql failed:" ; echo "$out") | mail -s "$server: Postgres scheduled backup failed" $mailto
             rm -f $mutex
             exit 1
         #else
@@ -56,7 +56,7 @@ psql_handler()
 }
 
 [[ "$dir" == *':'* ]] && dir_is_remote=1
-[ "$dir_is_remote" -a $rotate != "False" ] && { echo "error: rotation with remote backup directory is not implemented" | mail -s "$server: Postgres nightly backup failed" $mailto ; exit 1 ; }
+[ "$dir_is_remote" -a $rotate != "False" ] && { echo "error: rotation with remote backup directory is not implemented" | mail -s "$server: Postgres scheduled backup failed" $mailto ; exit 1 ; }
 
 [ ! -d `dirname $mutex` ] && handler mkdir -p `dirname $mutex`
 
@@ -66,7 +66,7 @@ done
 
 start=`date +%s`
 
-echo "nightly $$" > $mutex
+echo "scheduled $$" > $mutex
 
 if [ ! "$dir_is_remote" ]; then
     # move previous backup
@@ -88,7 +88,7 @@ handler rsync $remote_rsync -rptg --delete --delete-delay --exclude pg_xlog $dat
 # tell postgres we're done
 psql_handler "SELECT pg_stop_backup();"
 
-echo "Elapsed time: $(( `date +%s` - $start )) seconds" | mail -s "$server: Postgres nightly backup succeeded" $mailto
+echo "Elapsed time: $(( `date +%s` - $start )) seconds" | mail -s "$server: Postgres scheduled backup succeeded" $mailto
 
 # exit normally
 rm -f $mutex

@@ -12,7 +12,7 @@ active=`ls -1rtF $xlog_dir | grep -v '/$' | tail -1`
 out=`scp -p $xlog_dir/$active $backup_dir/$active 2>&1`
 ret=$?
 
-if [ $ret != 0 ]; then
+if [ $ret -ne 0 ]; then
     (echo "scp failed with code $ret:" ; echo "$out") | mail -s "`hostname`: WAL backup failed" $mailto
 fi
 
