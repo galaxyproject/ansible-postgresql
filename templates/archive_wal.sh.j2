@@ -11,9 +11,9 @@ full_file=$1
 file=$2
 server=`hostname`
 
-active_dir='{{ postgresql_backup_active_dir }}'
+active_dir={{ postgresql_backup_active_dir }}
 backup_dir="{{ postgresql_backup_dir }}/current/wal"
-mutex="{{ postgresql_backup_local_dir }}/walmutex"
+mutex={{ postgresql_backup_local_dir }}/walmutex
 mailto='{{ postgresql_backup_mail_recipient }}'
 mutex_attempts=50
 
