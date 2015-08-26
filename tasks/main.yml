@@ -31,6 +31,13 @@
 - name: Set conf.d include in postgresql.conf
   lineinfile: line="include_dir 'conf.d'" dest={{ postgresql_conf_dir }}/postgresql.conf backup=yes
   notify: Reload PostgreSQL
+  when: "{{ postgresql_version | version_compare('9.3', '>=') }}"
+
+
+- name: Include 25ansible_postgresql.conf in postgresql.conf
+  lineinfile: line="include 'conf.d/25ansible_postgresql.conf'" dest={{ postgresql_conf_dir }}/postgresql.conf backup=yes
+  notify: Reload PostgreSQL
+  when: "{{ postgresql_version | version_compare('9.3', '<') }}"
 
 - name: Set config options
   template: src=25ansible_postgresql.conf.j2 dest={{ postgresql_conf_dir }}/conf.d/25ansible_postgresql.conf owner=postgres group=postgres backup=yes
