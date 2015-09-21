@@ -4,7 +4,7 @@
 ##
 
 xlog_dir='{{ postgresql_pgdata }}/pg_xlog'
-backup_dir='{{ postgresql_backup_active_dir }}'
+backup_dir={{ postgresql_backup_active_dir }}
 mailto='{{ postgresql_backup_mail_recipient }}'
 
 active=`ls -1rtF $xlog_dir | grep -v '/$' | tail -1`
