@@ -16,11 +16,11 @@
 # helper script to parse the directory list and figure it out.
 - name: Determine latest pgdg repository package (RedHat)
   script: get_repo_rpm_release.py http://yum.postgresql.org/{{ postgresql_version }}/{{ postgresql_pgdg_families[ansible_distribution] | default("redhat") }}/{{ postgresql_pgdg_shortfamilies[ansible_distribution] | default("rhel") }}-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/ {{ postgresql_pgdg_dists[ansible_distribution] }}
-  register: pgdg_repo_pkg_release
+  register: pgdg_repo_pkg_name
   when: repo_pkg_installed.failed is defined and repo_pkg_installed.failed
 
 - name: Install pgdg repository package (RedHat)
-  yum: name=http://yum.postgresql.org/{{ postgresql_version }}/{{ postgresql_pgdg_families[ansible_distribution] | default("redhat") }}/{{ postgresql_pgdg_shortfamilies[ansible_distribution] | default("rhel") }}-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/pgdg-{{ postgresql_pgdg_dists[ansible_distribution] }}{{ postgresql_version | replace('.', '') }}-{{ postgresql_version }}-{{ pgdg_repo_pkg_release.stdout.strip() }}.noarch.rpm
+  yum: name=http://yum.postgresql.org/{{ postgresql_version }}/{{ postgresql_pgdg_families[ansible_distribution] | default("redhat") }}/{{ postgresql_pgdg_shortfamilies[ansible_distribution] | default("rhel") }}-{{ ansible_distribution_major_version }}-{{ ansible_architecture }}/{{ pgdg_repo_pkg_name.stdout.strip() }}
   when: repo_pkg_installed.failed is defined and repo_pkg_installed.failed
 
 - name: Install PostgreSQL (RedHat)
