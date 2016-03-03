@@ -45,7 +45,7 @@
 
 - name: Install pg_hba.conf
   template: src=pg_hba.conf.{{ ansible_os_family | lower }}.j2 dest={{ postgresql_conf_dir }}/pg_hba.conf owner=postgres group=postgres mode=0400 backup=yes
-  notify: Reload PostgreSQL
+  notify: Restart PostgreSQL
 
 - include: backup.yml
   when: postgresql_backup_dir is defined
