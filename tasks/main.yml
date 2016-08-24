@@ -42,6 +42,7 @@
 - name: Set config options
   template: src=25ansible_postgresql.conf.j2 dest={{ postgresql_conf_dir }}/conf.d/25ansible_postgresql.conf owner=postgres group=postgres backup=yes
   notify: Reload PostgreSQL
+  when: postgresql_option_config
 
 - name: Install pg_hba.conf
   template: src=pg_hba.conf.{{ ansible_os_family | lower }}.j2 dest={{ postgresql_conf_dir }}/pg_hba.conf owner=postgres group=postgres mode=0400 backup=yes
