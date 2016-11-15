@@ -2,6 +2,14 @@
 ## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
 ##
 
+# Entries configured in postgresql_pg_hba_conf follow
+{% if postgresql_pg_hba_conf is defined %}
+{% for line in postgresql_pg_hba_conf %}
+{{ line }}
+{% endfor %}
+{% endif %}
+
+# End entries configured in postgresql_pg_hba_conf follow
 {% if postgresql_pg_hba_local_socket is not defined or postgresql_pg_hba_local_socket %}
 # "local" is for Unix domain socket connections only
 local   all             all                                     peer
@@ -15,9 +23,3 @@ host    all             all             127.0.0.1/32            ident
 host    all             all             ::1/128                 ident
 {% endif %}
 
-# Entries configured in postgresql_pg_hba_conf follow
-{% if postgresql_pg_hba_conf is defined %}
-{% for line in postgresql_pg_hba_conf %}
-{{ line }}
-{% endfor %}
-{% endif %}
