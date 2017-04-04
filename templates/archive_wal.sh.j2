@@ -17,7 +17,7 @@ mutex={{ postgresql_backup_local_dir }}/walmutex
 mailto='{{ postgresql_backup_mail_recipient }}'
 mutex_attempts=50
 
-[ '{{ postgresql_backup_remote_rsync_path | default("None") }}' != 'None' ] && remote_rsync='--rsync-path={{ postgresql_backup_remote_rsync_path }}' || remote_rsync=''
+[ '{{ postgresql_backup_remote_rsync_path | default("None") }}' != 'None' ] && remote_rsync='--rsync-path={{ postgresql_backup_remote_rsync_path | default("None") }}' || remote_rsync=''
 
 handler()
 {
