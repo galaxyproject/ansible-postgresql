@@ -51,7 +51,7 @@ done
 echo "archive-WAL $$" > $mutex
 
 # If rsync outputs anything to stdout, the destination already existed, which should not happen
-if [ -n "`handler rsync $remote_rsync --ignore-existing -ptg --info=skip1 $full_file $backup_dir`" ]; then
+if [ -n "`handler rsync $remote_rsync {{ postgresql_archive_wal_rsync_args }} $full_file $backup_dir`" ]; then
     echo "$backup_dir/$file already exists, overwriting is not allowed" | mail -s "$server: WAL archive failed" $mailto
     rm -f $mutex
     exit 1
