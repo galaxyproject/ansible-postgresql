@@ -3,7 +3,7 @@
 ##
 
 {% if postgresql_conf is defined %}
-{% for opt in postgresql_conf %}
+{% for opt in postgresql_conf|sort %}
 {{ opt }} = {{ postgresql_conf[opt] }}
 {% endfor %}
 {% endif %}
