@@ -52,3 +52,4 @@
 
 - name: Ensure PostgreSQL is running
   service: name={{ postgresql_service_name }} enabled=yes state=started
+  when: postgresql_service

@@ -7,3 +7,5 @@ postgresql_backup_mail_recipient: postgres
 postgresql_backup_rotate: true
 
 postgresql_archive_wal_rsync_args: '--ignore-existing -ptg --info=skip1'
+
+postgresql_service: yes
