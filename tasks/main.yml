@@ -26,7 +26,7 @@
   when: ansible_os_family == "RedHat"
 
 - name: Create conf.d
-  file: path={{ postgresql_conf_dir }}/conf.d state=directory owner=postgres group=postgres
+  file: path={{ postgresql_conf_dir }}/conf.d state=directory owner={{ postgresql_user_name }} group={{ postgresql_user_name }}
 
 - name: Set conf.d include in postgresql.conf
   lineinfile: line="include_dir 'conf.d'" dest={{ postgresql_conf_dir }}/postgresql.conf backup=yes
@@ -40,11 +40,11 @@
   when: "postgresql_version is version_compare('9.3', '<')"
 
 - name: Set config options
-  template: src=25ansible_postgresql.conf.j2 dest={{ postgresql_conf_dir }}/conf.d/25ansible_postgresql.conf owner=postgres group=postgres backup=yes
+  template: src=25ansible_postgresql.conf.j2 dest={{ postgresql_conf_dir }}/conf.d/25ansible_postgresql.conf owner={{ postgresql_user_name }} group={{ postgresql_user_name }} backup=yes
   notify: Reload PostgreSQL
 
 - name: Install pg_hba.conf
-  template: src=pg_hba.conf.{{ ansible_os_family | lower }}.j2 dest={{ postgresql_conf_dir }}/pg_hba.conf owner=postgres group=postgres mode=0400 backup=yes
+  template: src=pg_hba.conf.{{ ansible_os_family | lower }}.j2 dest={{ postgresql_conf_dir }}/pg_hba.conf owner={{ postgresql_user_name }} group={{ postgresql_user_name }} mode=0400 backup=yes
   notify: Reload PostgreSQL
 
 - include: backup.yml
