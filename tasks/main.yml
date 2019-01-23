@@ -2,7 +2,7 @@
 
 # Convenient ordering - debian.yml sets postgresql_version if it is unset,
 # which is needed by the include_vars files.
-- include: debian.yml
+- include_tasks: debian.yml
   when: ansible_os_family == "Debian"
 
 # For RedHat we use the value from defaults/main.yml
@@ -22,7 +22,7 @@
   when: postgresql_conf_dir is not defined
 
 # Needs postgresql_pgdata_dir set
-- include: redhat.yml
+- include_tasks: redhat.yml
   when: ansible_os_family == "RedHat"
 
 - name: Create conf.d
@@ -47,7 +47,7 @@
   template: src=pg_hba.conf.{{ ansible_os_family | lower }}.j2 dest={{ postgresql_conf_dir }}/pg_hba.conf owner={{ postgresql_user_name }} group={{ postgresql_user_name }} mode=0400 backup=yes
   notify: Reload PostgreSQL
 
-- include: backup.yml
+- include_tasks: backup.yml
   when: postgresql_backup_dir is defined
 
 - name: Ensure PostgreSQL is running
