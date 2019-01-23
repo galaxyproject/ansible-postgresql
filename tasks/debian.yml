@@ -18,5 +18,5 @@
   changed_when: false
 
 - name: Set version fact
-  set_fact: postgresql_version={{ postgresql_version_query.stdout }}
+  set_fact: postgresql_version={{ postgresql_version_query.stdout.stdout.split('+') | first }}
   when: postgresql_version is not defined
