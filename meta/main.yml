@@ -4,7 +4,7 @@ galaxy_info:
   description: Install and manage a PostgreSQL (http://www.postgresql.org/) server.
   company: The Galaxy Project
   license: AFL v3.0
-  min_ansible_version: 1.8
+  min_ansible_version: 2.4
   platforms:
   - name: EL
     versions:
@@ -18,7 +18,9 @@ galaxy_info:
   - name: Debian
     versions:
     - all
-  categories:
+  galaxy_tags:
   - database
-  - database:sql
+  - sql
+  - postgres
+  - postgresql
 dependencies: []
