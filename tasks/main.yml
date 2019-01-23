@@ -29,13 +29,13 @@
   file: path={{ postgresql_conf_dir }}/conf.d state=directory owner={{ postgresql_user_name }} group={{ postgresql_user_name }}
 
 - name: Set conf.d include in postgresql.conf
-  lineinfile: line="include_dir 'conf.d'" dest={{ postgresql_conf_dir }}/postgresql.conf backup=yes
+  lineinfile: line="include_dir 'conf.d'" dest={{ postgresql_conf_dir }}/postgresql.conf backup=yes create=yes
   notify: Reload PostgreSQL
   when: "postgresql_version is version_compare('9.3', '>=')"
 
 
 - name: Include 25ansible_postgresql.conf in postgresql.conf
-  lineinfile: line="include 'conf.d/25ansible_postgresql.conf'" dest={{ postgresql_conf_dir }}/postgresql.conf backup=yes
+  lineinfile: line="include 'conf.d/25ansible_postgresql.conf'" dest={{ postgresql_conf_dir }}/postgresql.conf backup=yes create=yes
   notify: Reload PostgreSQL
   when: "postgresql_version is version_compare('9.3', '<')"
 
