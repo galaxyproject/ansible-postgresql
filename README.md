@@ -1,14 +1,12 @@
 PostgreSQL
 ==========
 
-An [Ansible][ansible] role for installing and managing [PostgreSQL][postgresql]
-servers. This role works with both Debian and RedHat based systems, and
-provides backup scripts for [PostgreSQL Continuous Archiving and Point-in-Time
+An [Ansible][ansible] role for installing and managing [PostgreSQL][postgresql] servers. This role works with both
+Debian and RedHat based systems, and provides backup scripts for [PostgreSQL Continuous Archiving and Point-in-Time
 Recovery][postgresql_pitr].
 
-On RedHat-based platforms, the [PostgreSQL Global Development Group (PGDG)
-packages][pgdg_yum] packages will be installed. On Debian-based platforms, you
-can choose from the distribution's packages (from APT) or the [PGDG
+On RedHat-based platforms, the [PostgreSQL Global Development Group (PGDG) packages][pgdg_yum] packages will be
+installed. On Debian-based platforms, you can choose from the distribution's packages (from APT) or the [PGDG
 packages][pgdg_apt].
 
 [ansible]: http://www.ansible.com/
@@ -17,38 +15,32 @@ packages][pgdg_apt].
 [pgdg_yum]: http://yum.postgresql.org/
 [pgdg_apt]: http://apt.postgresql.org/
 
-**Changes that require a restart will not be applied unless you manually
-restart PostgreSQL.** This role will reload the server for those configuration
-changes that can be updated with only a reload because reloading is a
-non-intrusive operation, but options that require a full restart will not cause
-the server to restart.
+**Changes that require a restart will not be applied unless you manually restart PostgreSQL.** This role will reload the
+server for those configuration changes that can be updated with only a reload because reloading is a non-intrusive
+operation, but options that require a full restart will not cause the server to restart.
 
 Requirements
 ------------
 
-This role requires Ansible 1.8+
+This role requires Ansible 2.4+
 
 Role Variables
 --------------
 
 ### All variables are optional ###
 
-- `postgresql_user_name`: System username to be used for PostgreSQL (default:
-  `postgres`).
+- `postgresql_user_name`: System username to be used for PostgreSQL (default: `postgres`).
 
-- `postgresql_version`: PostgreSQL version to install. On Debian-based
-  platforms, the default is whatever version is pointed to by the `postgresql`
-  metapackage). On RedHat-based platforms, the default is `9.4`.
+- `postgresql_version`: PostgreSQL version to install. On Debian-based platforms, the default is whatever version is
+  pointed to by the `postgresql` metapackage). On RedHat-based platforms, the default is `9.4`.
 
-- `postgresql_flavor`: On Debian-based platforms, this specifies whether you
-  want to use PostgreSQL packages from pgdg or the distribution's apt
-  repositories. Possible values: `apt`, `pgdg` (default: `apt`).
+- `postgresql_flavor`: On Debian-based platforms, this specifies whether you want to use PostgreSQL packages from pgdg
+  or the distribution's apt repositories. Possible values: `apt`, `pgdg` (default: `apt`).
 
-- `postgresql_conf`: A hash (dictionary) of `postgresql.conf` options and
-  values. These options are not added to `postgresql.conf` directly - the role
-  adds a `conf.d` subdirectory in the configuration directory and an include
-  statement for that directory to `postgresql.conf`. Options set in
-  `postgresql_conf` are then set in `conf.d/25ansible_postgresql.conf`.
+- `postgresql_conf`: A hash (dictionary) of `postgresql.conf` options and values. These options are not added to
+  `postgresql.conf` directly - the role adds a `conf.d` subdirectory in the configuration directory and an include
+  statement for that directory to `postgresql.conf`. Options set in `postgresql_conf` are then set in
+  `conf.d/25ansible_postgresql.conf`.
 
   Due to YAML parsing, you must take care when defining values in
   `postgresql_conf` to ensure they are properly written to the config file. For
@@ -71,60 +63,49 @@ Role Variables
 
 - `postgresql_pg_hba_conf`: A list of lines to add to `pg_hba.conf`
 
-- `postgresql_pg_hba_local_postgres_user`: If set to `false`, this will remove
-  the `postgres` user's entry from `pg_hba.conf` that is preconfigured on
-  Debian-based PostgreSQL installations. You probably do not want to do this
+- `postgresql_pg_hba_local_postgres_user`: If set to `false`, this will remove the `postgres` user's entry from
+  `pg_hba.conf` that is preconfigured on Debian-based PostgreSQL installations. You probably do not want to do this
   unless you know what you're doing.
 
-- `postgresql_pg_hba_local_socket`: If set to `false`, this will remove the
-  `local` entry from `pg_hba.conf` that is preconfigured by the PostgreSQL
-  package.
+- `postgresql_pg_hba_local_socket`: If set to `false`, this will remove the `local` entry from `pg_hba.conf` that is
+  preconfigured by the PostgreSQL package.
 
-- `postgresql_pg_hba_local_ipv4`: If set to `false`, this will remove the `host
-  ... 127.0.0.1/32` entry from `pg_hba.conf` that is preconfigured by the
-  PostgreSQL package.
+- `postgresql_pg_hba_local_ipv4`: If set to `false`, this will remove the `host ... 127.0.0.1/32` entry from
+  `pg_hba.conf` that is preconfigured by the PostgreSQL package.
 
-- `postgresql_pg_hba_local_ipv6`: If set to `false`, this will remove the `host
-  ... ::1/128` entry from `pg_hba.conf` that is preconfigured by the PostgreSQL
-  package.
+- `postgresql_pg_hba_local_ipv6`: If set to `false`, this will remove the `host ... ::1/128` entry from `pg_hba.conf`
+  that is preconfigured by the PostgreSQL package.
 
-- `postgresql_pgdata_dir`: Only set this if you have changed the `$PGDATA`
-  directory from the package default. Note this does not configure PostgreSQL
-  to actually use a different directory, you will need to do that yourself, it
-  just allows the role to properly locate the directory.
+- `postgresql_pgdata_dir`: Only set this if you have changed the `$PGDATA` directory from the package default. Note this
+  does not configure PostgreSQL to actually use a different directory, you will need to do that yourself, it just allows
+  the role to properly locate the directory.
 
-- `postgresql_conf_dir`: As with `postgresql_pgdata_dir` except for the
-  configuration directory.
+- `postgresql_conf_dir`: As with `postgresql_pgdata_dir` except for the configuration directory.
 
 ### Backups ###
 
-- `postgresql_backup_dir`: If set, enables [PITR][postgresql_pitr] backups. Set
-  this to a directory where your database will be backed up (this can be any
-  format supported by rsync, e.g. `user@host:/path`). The most recent backup
-  will be in a subdirectory named `current`.
+- `postgresql_backup_dir`: If set, enables [PITR][postgresql_pitr] backups. Set this to a directory where your database
+  will be backed up (this can be any format supported by rsync, e.g. `user@host:/path`). The most recent backup will be
+  in a subdirectory named `current`.
 
-- `postgresql_backup_rotate`: Boolean, defaults to `true`, which will cause the
-  `current` directory to be renamed prior to creating a new backup. If set to
-  `false`, `current` will be deleted (this is useful if you are using snapshots
-  or some other means to archive previous backups).
+- `postgresql_backup_rotate`: Boolean, defaults to `true`, which will cause the `current` directory to be renamed prior
+  to creating a new backup. If set to `false`, `current` will be deleted (this is useful if you are using snapshots or
+  some other means to archive previous backups).
 
-- `postgresql_backup_local_dir`: Filesystem path on the PostgreSQL server where
-  backup scripts will be placed and working WALs will be written prior to a WAL
-  archive.
+- `postgresql_backup_local_dir`: Filesystem path on the PostgreSQL server where backup scripts will be placed and
+  working WALs will be written prior to a WAL archive.
 
-- `postgresql_backup_[hour|minute]`: Controls what time the cron job will run
-  to perform a full backup. Defaults to 1:00 AM.
+- `postgresql_backup_[hour|minute]`: Controls what time the cron job will run to perform a full backup. Defaults to 1:00
+  AM.
 
-- `postgresql_backup_[day|month|weekday]`: Additional cron controls for when
-  the full backup is performed (default: `*`).
+- `postgresql_backup_[day|month|weekday]`: Additional cron controls for when the full backup is performed (default:
+  `*`).
 
-- `postgresql_backup_mail_recipient`: User or address that should receive mail
-  from the backup scripts.
+- `postgresql_backup_mail_recipient`: User or address that should receive mail from the backup scripts.
 
 - `postgresql_backup_remote_rsync_path`: Path to `rsync` on the remote system.
 
-- `postgresql_backup_post_command`: Arbitrary command to run after successful
-  completion of a scheduled backup.
+- `postgresql_backup_post_command`: Arbitrary command to run after successful completion of a scheduled backup.
 
 Dependencies
 ------------
@@ -134,8 +115,7 @@ None
 Example Playbook
 ----------------
 
-Standard install: Default `postgresql.conf`, `pg_hba.conf` and default version
-for the OS:
+Standard install: Default `postgresql.conf`, `pg_hba.conf` and default version for the OS:
 
 ```yaml
 ---
@@ -159,8 +139,7 @@ Use the pgdg packages on a Debian-based host:
     - postgresql
 ```
 
-Use the PostgreSQL 9.3 packages and set some `postgresql.conf` options and
-`pg_hba.conf` entries:
+Use the PostgreSQL 9.5 packages and set some `postgresql.conf` options and `pg_hba.conf` entries:
 
 ```yaml
 ---
@@ -168,7 +147,7 @@ Use the PostgreSQL 9.3 packages and set some `postgresql.conf` options and
 - hosts: dbservers
   remote_user: root
   vars:
-    postgresql_version: 9.3
+    postgresql_version: 9.5
     postgresql_conf:
       listen_addresses: "''"    # disable network listening (listen on unix socket only)
       max_connections: 50       # decrease connection limit
