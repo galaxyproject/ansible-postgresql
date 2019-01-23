@@ -3,7 +3,15 @@
 ##
 
 {% if postgresql_conf is defined %}
-{% for opt in postgresql_conf %}
+{% if postgresql_conf is mapping %}
+{% for opt in postgresql_conf | sort -%}
 {{ opt }} = {{ postgresql_conf[opt] }}
 {% endfor %}
+{% else %}
+{% for pair in postgresql_conf -%}
+{% for key in pair -%}
+{{ key }} = {{ pair[key] }}
+{% endfor %}
+{% endfor %}
+{% endif %}
 {% endif %}

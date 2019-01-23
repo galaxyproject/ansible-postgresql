@@ -37,10 +37,11 @@ Role Variables
 - `postgresql_flavor`: On Debian-based platforms, this specifies whether you want to use PostgreSQL packages from pgdg
   or the distribution's apt repositories. Possible values: `apt`, `pgdg` (default: `apt`).
 
-- `postgresql_conf`: A hash (dictionary) of `postgresql.conf` options and values. These options are not added to
-  `postgresql.conf` directly - the role adds a `conf.d` subdirectory in the configuration directory and an include
-  statement for that directory to `postgresql.conf`. Options set in `postgresql_conf` are then set in
-  `conf.d/25ansible_postgresql.conf`.
+- `postgresql_conf`: A list of hashes (dictionaries) of `postgresql.conf` options (keys) and values. These options are
+  not added to `postgresql.conf` directly - the role adds a `conf.d` subdirectory in the configuration directory and an
+  include statement for that directory to `postgresql.conf`. Options set in `postgresql_conf` are then set in
+  `conf.d/25ansible_postgresql.conf`. For legacy reasons, this can also be a single hash, but the list syntax is
+  preferred because it preserves order.
 
   Due to YAML parsing, you must take care when defining values in
   `postgresql_conf` to ensure they are properly written to the config file. For
@@ -48,9 +49,9 @@ Role Variables
 
   ```yaml
   postgresql_conf:
-    max_connections: 250
-    archive_mode: "off"
-    work_mem: "'8MB'"
+    - max_connections: 250
+    - archive_mode: "off"
+    - work_mem: "'8MB'"
   ```
 
   Becomes the following in `25ansible_postgresql.conf`:
@@ -149,8 +150,8 @@ Use the PostgreSQL 9.5 packages and set some `postgresql.conf` options and `pg_h
   vars:
     postgresql_version: 9.5
     postgresql_conf:
-      listen_addresses: "''"    # disable network listening (listen on unix socket only)
-      max_connections: 50       # decrease connection limit
+      - listen_addresses: "''"    # disable network listening (listen on unix socket only)
+      - max_connections: 50       # decrease connection limit
     postgresql_pg_hba_conf:
       - host all all 10.0.0.0/8 md5
   roles:
