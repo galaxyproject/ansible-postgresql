@@ -77,11 +77,11 @@ Role Variables
 - `postgresql_pg_hba_local_ipv6`: If set to `false`, this will remove the `host ... ::1/128` entry from `pg_hba.conf`
   that is preconfigured by the PostgreSQL package.
 
-- `postgresql_pgdata_dir`: Only set this if you have changed the `$PGDATA` directory from the package default. Note this
+- `postgresql_pgdata`: Only set this if you have changed the `$PGDATA` directory from the package default. Note this
   does not configure PostgreSQL to actually use a different directory, you will need to do that yourself, it just allows
   the role to properly locate the directory.
 
-- `postgresql_conf_dir`: As with `postgresql_pgdata_dir` except for the configuration directory.
+- `postgresql_conf_dir`: As with `postgresql_pgdata` except for the configuration directory.
 
 ### Backups ###
 

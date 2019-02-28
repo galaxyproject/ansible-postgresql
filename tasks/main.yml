@@ -11,7 +11,7 @@
     postgresql_version: "{{ postgresql_default_version }}"
   when: ansible_os_family == "RedHat" and postgresql_version is not defined
 
-# Sets postgresql_pgdata_dir, postgresql_conf_dir
+# Sets postgresql_pgdata, postgresql_conf_dir
 - name: Set OS-specific variables
   include_vars: "{{ ansible_os_family | lower }}.yml"
 
@@ -25,7 +25,7 @@
     postgresql_conf_dir: "{{ postgresql_conf_dir_default }}"
   when: postgresql_conf_dir is not defined
 
-# Needs postgresql_pgdata_dir set
+# Needs postgresql_pgdata set
 - include_tasks: redhat.yml
   when: ansible_os_family == "RedHat"
 
