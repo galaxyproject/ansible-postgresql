@@ -36,14 +36,29 @@
     owner: "{{ postgresql_user_name }}"
     group: "{{ postgresql_user_name }}"
 
+# lineinfile's behavior when `backrefs = True` is very odd. We don't want to overwrite include_dirs if it's already
+# properly set, but we don't know the exact format it will be in (with or without '=', with a comment at end of line,
+# etc.). So check for a match first and then add if there's no match.
+- name: Check for conf.d include in postgresql.conf
+  lineinfile:
+    line: 'why ansible ;('
+    # The '=' is optional but is present in postgresql.conf.sample, which Debian's sample is based off of (but include*
+    # directive examples in the PostgreSQL docs don't use it). Also ignore comments and whitespace after the directive.
+    regexp: '^include_dir(\s+|\s*=\s*)?''conf.d''\s*(#.*)?$'
+    path: "{{ postgresql_conf_dir }}/postgresql.conf"
+    backrefs: true
+  check_mode: true
+  changed_when: __postgresql_include_dir_result is not changed  # yeah...
+  register: __postgresql_include_dir_result
+  when: "postgresql_version is version_compare('9.3', '>=')"
+
 - name: Set conf.d include in postgresql.conf
   lineinfile:
     line: "include_dir 'conf.d'"
-    dest: "{{ postgresql_conf_dir }}/postgresql.conf"
+    path: "{{ postgresql_conf_dir }}/postgresql.conf"
     backup: yes
   notify: Reload PostgreSQL
-  when: "postgresql_version is version_compare('9.3', '>=')"
-
+  when: "postgresql_version is version_compare('9.3', '>=') and __postgresql_include_dir_result is changed"
 
 - name: Include 25ansible_postgresql.conf in postgresql.conf
   lineinfile:
