@@ -4,7 +4,7 @@
 # every time to check whether it's installed, so, don't do that.
 - name: Check pgdg repository package (RedHat)
   yum:
-    name: "pgdg-{{ postgresql_pgdg_dists[ansible_distribution] }}{{ postgresql_version | replace('.', '') }}"
+    name: "pgdg-redhat-repo"
   register: __postgresql_repo_pkg_installed_result
   ignore_errors: yes
 
