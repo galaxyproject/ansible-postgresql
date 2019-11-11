@@ -3,13 +3,13 @@
 ## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
 ##
 
-xlog_dir='{{ postgresql_pgdata }}/pg_xlog'
+wal_dir='{{ postgresql_pgdata }}/{{ postgresql_version is version("10", ">=") | ternary("pg_wal", "pg_xlog") }}'
 backup_dir={{ postgresql_backup_active_dir }}
 mailto='{{ postgresql_backup_mail_recipient }}'
 
-active=`ls -1rtF $xlog_dir | grep -v '/$' | tail -1`
+active=`ls -1rtF $wal_dir | grep -v '/$' | tail -1`
 
-out=`scp -p $xlog_dir/$active $backup_dir/$active 2>&1`
+out=`scp -p $wal_dir/$active $backup_dir/$active 2>&1`
 ret=$?
 
 if [ $ret -ne 0 ]; then

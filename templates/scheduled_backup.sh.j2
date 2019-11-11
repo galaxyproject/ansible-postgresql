@@ -9,6 +9,7 @@ dir='{{ postgresql_backup_dir }}/current'
 mailto='{{ postgresql_backup_mail_recipient }}'
 mutex={{ postgresql_backup_local_dir }}/scheduledmutex
 rotate='{{ postgresql_backup_rotate | default("True") }}'
+wal_dir='{{ postgresql_version is version("10", ">=") | ternary("pg_wal", "pg_xlog") }}'
 
 [ '{{ postgresql_backup_remote_rsync_path | default("None") }}' != 'None' ] && remote_rsync='--rsync-path={{ postgresql_backup_remote_rsync_path | default("None") }}' || remote_rsync=''
 
@@ -83,7 +84,7 @@ backup_started=1
 handler mkdir -p $data/wal
 
 # begin the backup
-handler rsync $remote_rsync -rptg --delete --delete-delay --exclude pg_xlog $data/ $dir
+handler rsync $remote_rsync -rptg --delete --delete-delay --exclude $wal_dir $data/ $dir
 
 # tell postgres we're done
 psql_handler "SELECT pg_stop_backup();"
