@@ -12,6 +12,15 @@
     - "{{ postgresql_backup_local_dir }}/bin"
     - "{{ postgresql_backup_active_dir }}"
 
+- name: Create backup output directory
+  file:
+    owner: postgres
+    group: postgres
+    mode: 0750
+    state: directory
+    path: "{{ postgresql_backup_dir }}"
+  when: postgresql_backup_dir[0] == '/'
+
 - name: Install backup scripts
   template:
     src: "{{ item }}.j2"
