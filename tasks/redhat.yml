@@ -42,9 +42,18 @@
 #  # here but alas there is no `startswith` test
 #  loop: "{{ __postgresql_yum_repolist_result.results }}"
 
-- name: Install PostgreSQL (RedHat)
+
+- name: Install PostgreSQL (RedHat < 8)
   yum:
     name: postgresql{{ __postgresql_version_dotless }}-server
+  when: ansible_distribution_major_version is version(8, '<')
+
+# on RH-8 for installing the pgdg-version, the Appstream-repo must be disabled
+- name: Install PostgreSQL (RedHat >= 8)
+  yum:
+    name: postgresql{{ __postgresql_version_dotless }}-server
+    disablerepo: AppStream
+  when: ansible_distribution_major_version is version(8, '>=')
 
 - name: Check for pgdata directory
   stat:

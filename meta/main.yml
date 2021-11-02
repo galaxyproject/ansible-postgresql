@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: The Galaxy Project
+  author: The Galaxy Project; (w/ customizations for usegalaxy.eu)
   description: Install and manage a PostgreSQL (http://www.postgresql.org/) server.
   company: The Galaxy Project
   license: AFL v3.0
