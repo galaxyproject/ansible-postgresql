@@ -181,7 +181,8 @@ def write_backup_file(backup_path, file_contents, file_name):
     file_path = os.path.join(backup_path, state.label, file_name)
     cmd = state.rsync_cmd
     # use a tempfile with rsync since the path might be remote
-    with tempfile.NamedTemporaryFile(mode='wb', prefix='postgresql_backup_') as fh:
+    mode = 'w' if isinstance(file_contents, str) else 'wb'
+    with tempfile.NamedTemporaryFile(mode=mode, prefix='postgresql_backup_') as fh:
         fh.write(file_contents)
         fh.flush()
         cmd.extend([fh.name, file_path])
@@ -207,6 +208,8 @@ def get_current_labels(backup_path):
     cmd = state.rsync_cmd
     cmd.extend(['--list-only', backup_path.rstrip('/') + '/'])
     out = subprocess.check_output(cmd)
+    if sys.version_info > (3,):
+        out = out.decode('utf-8')
     labels = []
     # there doesn't appear to be a way to format rsync --list-only output
     for line in out.splitlines():
