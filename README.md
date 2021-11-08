@@ -104,14 +104,13 @@ Role Variables
 
 - `postgresql_backup_mail_recipient`: User or address that should receive mail from the backup scripts.
 
-- `postgresql_backup_remote_rsync_path`: Path to `rsync` on the remote system.
-
 - `postgresql_backup_post_command`: Arbitrary command to run after successful completion of a scheduled backup.
 
 Dependencies
 ------------
 
-None
+Backup functionality requires Python 2.7 or 3.5+, psycopg2, and rsync. Note that if installing PGDG versions of
+PostgreSQL on Enterprise Linux, corresponding psycopg2 packages are available from the PGDG yum repositories.
 
 Example Playbook
 ----------------
