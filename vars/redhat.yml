@@ -2,4 +2,5 @@
 
 postgresql_pgdata_default: /var/lib/pgsql/{{ postgresql_version }}/data
 postgresql_conf_dir_default: /var/lib/pgsql/{{ postgresql_version }}/data
+postgresql_inst_dir_default: /usr/pgsql-{{ postgresql_version }}
 postgresql_service_name: postgresql-{{ postgresql_version }}

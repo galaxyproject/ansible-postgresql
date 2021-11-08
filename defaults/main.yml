@@ -8,3 +8,7 @@ postgresql_backup_rotate: true
 postgresql_user_name: postgres
 
 postgresql_archive_wal_rsync_args: '--ignore-existing -ptg --info=skip1'
+
+postgresql_pgdump_cronspec: "00 18 * * 1-7"
+postgresql_pgdump_filespec: 'full.daily.`/bin/date +"\%u"`.sql'
+
