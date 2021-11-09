@@ -32,7 +32,7 @@ Role Variables
 - `postgresql_user_name`: System username to be used for PostgreSQL (default: `postgres`).
 
 - `postgresql_version`: PostgreSQL version to install. On Debian-based platforms, the default is whatever version is
-  pointed to by the `postgresql` metapackage). On RedHat-based platforms, the default is `10`.
+  pointed to by the `postgresql` metapackage). On RedHat-based platforms, the default is `13`.
 
 - `postgresql_flavor`: On Debian-based platforms, this specifies whether you want to use PostgreSQL packages from pgdg
   or the distribution's apt repositories. Possible values: `apt`, `pgdg` (default: `apt`).
