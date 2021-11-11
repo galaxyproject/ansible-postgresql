@@ -89,12 +89,7 @@ Role Variables
   will be backed up (this can be any format supported by rsync, e.g. `user@host:/path`). The most recent backup will be
   in a subdirectory named `current`.
 
-- `postgresql_backup_rotate`: Boolean, defaults to `true`, which will cause the `current` directory to be renamed prior
-  to creating a new backup. If set to `false`, `current` will be deleted (this is useful if you are using snapshots or
-  some other means to archive previous backups).
-
-- `postgresql_backup_local_dir`: Filesystem path on the PostgreSQL server where backup scripts will be placed and
-  working WALs will be written prior to a WAL archive.
+- `postgresql_backup_local_dir`: Filesystem path on the PostgreSQL server where backup scripts will be placed.
 
 - `postgresql_backup_[hour|minute]`: Controls what time the cron job will run to perform a full backup. Defaults to 1:00
   AM.
@@ -102,9 +97,9 @@ Role Variables
 - `postgresql_backup_[day|month|weekday]`: Additional cron controls for when the full backup is performed (default:
   `*`).
 
-- `postgresql_backup_mail_recipient`: User or address that should receive mail from the backup scripts.
-
 - `postgresql_backup_post_command`: Arbitrary command to run after successful completion of a scheduled backup.
+
+Additional options pertaining to backups can be found in the [defaults file](defaults/main.yml).
 
 Dependencies
 ------------
