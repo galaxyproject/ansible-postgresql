@@ -1,10 +1,32 @@
 ---
 
 postgresql_default_version: 10
-postgresql_backup_local_dir: ~postgres/backup
-postgresql_backup_active_dir: "{{ postgresql_backup_local_dir }}/active"
-postgresql_backup_mail_recipient: postgres
-postgresql_backup_rotate: true
 postgresql_user_name: postgres
 
+# Point-In-Time Recovery (PITR) backup options
+#   https://www.postgresql.org/docs/current/continuous-archiving.html
+postgresql_backup_local_dir: >-
+  {{ '/var/lib/pgsql' if ansible_os_family == 'RedHat' else (
+      '/var/lib/postgresql' if ansible_os_family == 'Debian' else '~postgres') }}/backup
+postgresql_create_backup_dir: true
+
+# Options used for the WAL archive command - do not change this unless you have read the PITR documentation and
+# understand how this command must work.
 postgresql_archive_wal_rsync_args: '--ignore-existing -ptg --info=skip1'
+
+# These options are passed to all calls of rsync (in addition to backups, rsync is used to clean up old backups)
+postgresql_backup_rsync_connect_opts: ''
+# These options are passed only to the call of rsync that performs the backup
+postgresql_backup_rsync_backup_opts: '-rptg'
+
+# Keep this many old backups
+postgresql_backup_keep: 30
+
+__postgresql_pgdg_bin_dir: "{{ '/usr/pgsql-' ~ (postgresql_version | replace('.', '')) ~ '/bin' }}"
+postgresql_backup_command: >-
+  {{ postgresql_backup_local_dir | quote }}/bin/backup.py
+  {{ '--rsync-connect-opts ' ~ (postgresql_backup_rsync_connect_opts | quote) if postgresql_backup_rsync_connect_opts else '' }}
+  --rsync-backup-opts {{ postgresql_backup_rsync_backup_opts | quote }}
+  --keep {{ postgresql_backup_keep | quote }}
+  {{ '--pg-bin-dir ' ~ __postgresql_pgdg_bin_dir if ansible_os_family == 'RedHat' else '' }}
+  --backup --clean-archive {{ postgresql_backup_dir | quote }}

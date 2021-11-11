@@ -10,7 +10,6 @@
   with_items:
     - "{{ postgresql_backup_local_dir }}"
     - "{{ postgresql_backup_local_dir }}/bin"
-    - "{{ postgresql_backup_active_dir }}"
 
 - name: Create backup output directory
   file:
@@ -19,19 +18,27 @@
     mode: 0750
     state: directory
     path: "{{ postgresql_backup_dir }}"
-  when: postgresql_backup_dir[0] == '/'
+  when: postgresql_backup_dir[0] == '/' and postgresql_create_backup_dir
 
-- name: Install backup scripts
+- name: Install backup script templates
   template:
     src: "{{ item }}.j2"
     dest: "{{ postgresql_backup_local_dir }}/bin/{{ item }}"
     owner: postgres
     group: postgres
     mode: 0750
-  with_items:
-    - backup_working_wal.sh
+  loop:
     - archive_wal.sh
-    - scheduled_backup.sh
+
+- name: Install backup script files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ postgresql_backup_local_dir }}/bin/{{ item }}"
+    owner: postgres
+    group: postgres
+    mode: 0750
+  loop:
+    - backup.py
 
 - name: Set WAL archive config options
   template:
@@ -53,13 +60,13 @@
     month: "{{ postgresql_backup_month | default(omit) }}"
     weekday: "{{ postgresql_backup_weekday | default(omit) }}"
     job: >-
-      {{ postgresql_backup_local_dir }}/bin/scheduled_backup.sh{{
+      {{ postgresql_backup_command }}
+      {{
         ' && ' ~ postgresql_backup_post_command if postgresql_backup_post_command is defined else ''
       }}
 
-- name: Schedule PostgreSQL working WAL backup
+- name: Remove PostgreSQL working WAL backup cron job
   cron:
     name: "PostgreSQL WAL Backup"
     cron_file: ansible_postgresql_walbackup
-    user: postgres
-    job: "{{ postgresql_backup_local_dir }}/bin/backup_working_wal.sh"
+    state: absent
