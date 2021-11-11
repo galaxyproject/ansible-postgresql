@@ -46,7 +46,8 @@
     dest: "{{ postgresql_conf_dir }}/conf.d/20ansible_backup.conf"
     owner: postgres
     group: postgres
-    backup: yes
+    mode: 0644
+    backup: true
   notify: Reload PostgreSQL
 
 - name: Schedule backups

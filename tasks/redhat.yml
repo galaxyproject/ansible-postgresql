@@ -11,7 +11,7 @@
   yum:
     name: "pgdg-redhat-repo"
   register: __postgresql_repo_pkg_installed_result
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Install pgdg repository package (RedHat)
   yum:
@@ -25,22 +25,22 @@
   delay: 5
   when: __postgresql_repo_pkg_installed_result is failed
 
-#- name: Collect installed repos
-#  yum:
-#    list: repos
-#  until: __postgresql_yum_repolist_result is succeeded
-#  retries: 5
-#  delay: 5
-#  register: __postgresql_yum_repolist_result
+# - name: Collect installed repos
+#   yum:
+#     list: repos
+#   until: __postgresql_yum_repolist_result is succeeded
+#   retries: 5
+#   delay: 5
+#   register: __postgresql_yum_repolist_result
 
 # Not supported (and no good workaround) until there is a solution for https://github.com/ansible/ansible/issues/41178
-#- name: Ensure that only the desired PostgreSQL version's repo is enabled
-#  yum_repository:
-#    name: item.repoid
-#    enabled: "{{ (item.repoid == 'pgdg' ~ __postgresql_version_dotless) if item.repoid.startswith('pgdg') else item.state == 'enabled' }}"
-#  # "{{ __postgresql_yum_repolist_result.results | selectattr('repoid', 'startswith', 'pgdg') | list }}" would be nice
-#  # here but alas there is no `startswith` test
-#  loop: "{{ __postgresql_yum_repolist_result.results }}"
+# - name: Ensure that only the desired PostgreSQL version's repo is enabled
+#   yum_repository:
+#     name: item.repoid
+#     enabled: "{{ (item.repoid == 'pgdg' ~ __postgresql_version_dotless) if item.repoid.startswith('pgdg') else item.state == 'enabled' }}"
+#   # "{{ __postgresql_yum_repolist_result.results | selectattr('repoid', 'startswith', 'pgdg') | list }}" would be nice
+#   # here but alas there is no `startswith` test
+#   loop: "{{ __postgresql_yum_repolist_result.results }}"
 
 - name: Install PostgreSQL (RedHat)
   yum:

@@ -13,7 +13,7 @@
 - name: Install pgdg repository (Debian/pgdg)
   apt_repository:
     repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
-    update_cache: yes
+    update_cache: true
   when: postgresql_flavor is defined and postgresql_flavor == "pgdg"
 
 - name: Install PostgreSQL (Debian)

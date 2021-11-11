@@ -2,9 +2,9 @@
 
 # maps ansible_* to the pgdg repository package name
 postgresql_pgdg_families:
-  #default: redhat
+  # default: redhat
   Fedora: fedora
 
 postgresql_pgdg_shortfamilies:
-  #default: EL
+  # default: EL
   Fedora: F
