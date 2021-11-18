@@ -1,0 +1,1 @@
+{{ postgresql_pgdump_cronspec }} {{ postgresql_user_name }} {{ postgresql_inst_dir_default }}/bin/pg_dumpall -c -f {{ postgresql_pgdump_dir }}/{{ postgresql_pgdump_filespec }}

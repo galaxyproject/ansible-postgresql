@@ -32,7 +32,7 @@ Role Variables
 - `postgresql_user_name`: System username to be used for PostgreSQL (default: `postgres`).
 
 - `postgresql_version`: PostgreSQL version to install. On Debian-based platforms, the default is whatever version is
-  pointed to by the `postgresql` metapackage). On RedHat-based platforms, the default is `10`.
+  pointed to by the `postgresql` metapackage). On RedHat-based platforms, the default is `13`.
 
 - `postgresql_flavor`: On Debian-based platforms, this specifies whether you want to use PostgreSQL packages from pgdg
   or the distribution's apt repositories. Possible values: `apt`, `pgdg` (default: `apt`).
@@ -98,6 +98,16 @@ Role Variables
   `*`).
 
 - `postgresql_backup_post_command`: Arbitrary command to run after successful completion of a scheduled backup.
+
+### Backups via pg_dumpall(1) ###
+
+This is an alternative backup strategy that creates full dumps of the whole database cluster using pg_dumpall(1).
+
+- `postgresql_pgdump_dir`: If set, enables pg_dumpall(1)-backups. Set this to the directory where the dumps should be written. There is no distinction between local and archive directories; it is assumed that this directory is "safe enough" and has enough storage space available.
+
+- `postgresql_pgdump_cronspec`: This specifies the first 5 fields of the crontab-entry that will be govern the pgdump-schedule. Defaults to "00 18 * * 1-7", which means "start the dump each day at 18:00".
+
+- `postgresql_pgdump_filespec`: Controls the names of the dump files created. The default creates a file for each day of the week that will be overwritten after seven days.
 
 Additional options pertaining to backups can be found in the [defaults file](defaults/main.yml).
 
