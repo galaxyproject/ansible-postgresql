@@ -2,7 +2,7 @@
 
 - name: Install pgdg package signing key (Debian/pgdg)
   apt_key:
-    keyserver: pgp.mit.edu
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
     id: ACCC4CF8
   register: __postgresql_apt_key_result
   until: __postgresql_apt_key_result is succeeded
