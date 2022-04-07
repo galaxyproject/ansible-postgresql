@@ -1,9 +1,15 @@
 ---
 
+- name: APT keyrings directory
+  file:
+    path: "{{ postgresql_apt_keys_dir }}"
+    state: directory
+    mode: 0755
+
 - name: Install pgdg package signing key (Debian/pgdg)
-  apt_key:
-    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
-    id: ACCC4CF8
+  get_url:
+    url: "{{ postgresql_pgdg_key_url }}"
+    dest: "{{ postgresql_pgdg_key_dest }}"
   register: __postgresql_apt_key_result
   until: __postgresql_apt_key_result is succeeded
   retries: 5
@@ -12,7 +18,7 @@
 
 - name: Install pgdg repository (Debian/pgdg)
   apt_repository:
-    repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
+    repo: "{{ postgresql_pgdg_repo }}"
     update_cache: true
   when: postgresql_flavor is defined and postgresql_flavor == "pgdg"
 
