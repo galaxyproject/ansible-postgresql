@@ -51,7 +51,7 @@
   check_mode: true
   changed_when: __postgresql_include_dir_result is not changed  # yeah...
   register: __postgresql_include_dir_result
-  when: postgresql_version is version('9.3', '>=')
+  when: postgresql_version is version("9.3", '>=')
 
 - name: Set conf.d include in postgresql.conf
   lineinfile:
