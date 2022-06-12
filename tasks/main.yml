@@ -51,7 +51,7 @@
   check_mode: true
   changed_when: __postgresql_include_dir_result is not changed  # yeah...
   register: __postgresql_include_dir_result
-  when: "postgresql_version is version_compare('9.3', '>=')"
+  when: postgresql_version is version('9.3', '>=')
 
 - name: Set conf.d include in postgresql.conf
   lineinfile:
@@ -59,7 +59,7 @@
     path: "{{ postgresql_conf_dir }}/postgresql.conf"
     backup: true
   notify: Reload PostgreSQL
-  when: "postgresql_version is version_compare('9.3', '>=') and __postgresql_include_dir_result is changed"
+  when: postgresql_version is version('9.3', '>=') and __postgresql_include_dir_result is changed
 
 - name: Include 25ansible_postgresql.conf in postgresql.conf
   lineinfile:
@@ -67,7 +67,7 @@
     dest: "{{ postgresql_conf_dir }}/postgresql.conf"
     backup: true
   notify: Reload PostgreSQL
-  when: "postgresql_version is version_compare('9.3', '<')"
+  when: postgresql_version is version('9.3', '>=')
 
 - name: Set config options
   template:
