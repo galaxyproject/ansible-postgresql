@@ -1,0 +1,18 @@
+---
+
+- name: Create backup directory for pgdump
+  file:
+    owner: postgres
+    group: postgres
+    mode: 0750
+    state: directory
+    path: "{{ postgresql_pgdump_dir }}"
+
+- name: Schedule pgdump backups via cron(8)
+  template:
+    src: local-pgdump.crontab
+    dest: /etc/cron.d/local-pgdump
+    owner: root
+    group: root
+    mode: 0644
+
