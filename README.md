@@ -3,7 +3,8 @@ PostgreSQL
 
 An [Ansible][ansible] role for installing and managing [PostgreSQL][postgresql] servers. This role works with both
 Debian and RedHat based systems, and provides backup scripts for [PostgreSQL Continuous Archiving and Point-in-Time
-Recovery][postgresql_pitr].
+Recovery][postgresql_pitr]. It does not create or manage PostgreSQL users, roles, groups, databases, and so forth. For
+that, see [galaxyproject.postgresql_objects][postgresql_objects].
 
 On RedHat-based platforms, the [PostgreSQL Global Development Group (PGDG) packages][pgdg_yum] packages will be
 installed. On Debian-based platforms, you can choose from the distribution's packages (from APT) or the [PGDG
@@ -12,6 +13,7 @@ packages][pgdg_apt].
 [ansible]: http://www.ansible.com/
 [postgresql]: http://www.postgresql.org/
 [postgresql_pitr]: http://www.postgresql.org/docs/9.4/static/continuous-archiving.html
+[postgresql_objects]: https://github.com/galaxyproject/ansible-postgresql-objects/
 [pgdg_yum]: http://yum.postgresql.org/
 [pgdg_apt]: http://apt.postgresql.org/
 
@@ -82,6 +84,10 @@ Role Variables
   the role to properly locate the directory.
 
 - `postgresql_conf_dir`: As with `postgresql_pgdata` except for the configuration directory.
+
+- `postgresql_install_psycopg2`: Attempt to install the correct pacakge providing psycopg2 to the Python interpreter
+  that Ansible is using on the remote side. This allows for the use of the `postgresql_*` Ansible modules (perhaps via
+  [galaxyproject.postgresql_objects][postgresql_objects]), which depend on psycopg2. Defaults to `true`.
 
 ### Backups ###
 
@@ -173,4 +179,4 @@ License
 Author Information
 ------------------
 
-[Nate Coraor](https://github.com/natefoo)  
+The [Galaxy Community](https://galaxyproject.org/) and [contributors](https://github.com/galaxyproject/ansible-postgresql/graphs/contributors)
