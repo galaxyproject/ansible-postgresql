@@ -1,5 +1,10 @@
 ---
 
+postgresql_apt_keys_dir: "/etc/apt/keyrings"
+postgresql_pgdg_key_dest: "{{ postgresql_apt_keys_dir }}/pgdg.asc"
+postgresql_pgdg_key_url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+postgresql_pgdg_repo: "deb [signed-by={{ postgresql_pgdg_key_dest }}] http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
+
 postgresql_default_version: 10
 postgresql_user_name: postgres
 
