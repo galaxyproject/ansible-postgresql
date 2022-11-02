@@ -35,3 +35,5 @@ postgresql_backup_command: >-
   --keep {{ postgresql_backup_keep | quote }}
   {{ '--pg-bin-dir ' ~ __postgresql_pgdg_bin_dir if ansible_os_family == 'RedHat' else '' }}
   --backup --clean-archive {{ postgresql_backup_dir | quote }}
+
+postgresql_default_auth_method: "{{ (postgresql_version is version('13', '>')) | ternary('scram-sha-256', 'md5') }}"
