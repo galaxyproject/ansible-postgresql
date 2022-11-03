@@ -40,3 +40,8 @@
   set_fact:
     postgresql_version: "{{ __postgresql_version_query_result.stdout.split('+') | first }}"
   when: postgresql_version is not defined
+
+- name: Install psycopg2
+  apt:
+    name: "python{{ (ansible_python.version.major == 3) | ternary('3', '') }}-psycopg2"
+  when: postgresql_install_psycopg2

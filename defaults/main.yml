@@ -5,8 +5,10 @@ postgresql_pgdg_key_dest: "{{ postgresql_apt_keys_dir }}/pgdg.asc"
 postgresql_pgdg_key_url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
 postgresql_pgdg_repo: "deb [signed-by={{ postgresql_pgdg_key_dest }}] http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
 
-postgresql_default_version: 10
+postgresql_default_version: 15
 postgresql_user_name: postgres
+
+postgresql_install_psycopg2: true
 
 # Point-In-Time Recovery (PITR) backup options
 #   https://www.postgresql.org/docs/current/continuous-archiving.html
