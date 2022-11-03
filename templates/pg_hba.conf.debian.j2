@@ -2,7 +2,7 @@
 ## This file is maintained by Ansible - CHANGES WILL BE OVERWRITTEN
 ##
 
-{% if postgresql_pg_hba_local_postgres_user is not defined or postgresql_pg_hba_local_postgres_user %}
+{% if postgresql_pg_hba_local_postgres_user | default(true) | bool %}
 # DO NOT DISABLE!
 # If you change this first entry you will need to make sure that the
 # database superuser can access the database using some other method.
@@ -13,22 +13,24 @@
 local   all             postgres                                peer
 {% endif %}
 
-{% if postgresql_pg_hba_local_socket is not defined or postgresql_pg_hba_local_socket %}
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+{% if postgresql_pg_hba_local_socket | default(true) %}
 # "local" is for Unix domain socket connections only
 local   all             all                                     peer
 {% endif %}
-{% if postgresql_pg_hba_local_ipv4 is not defined or postgresql_pg_hba_local_ipv4 %}
+{% if postgresql_pg_hba_local_ipv4 | default(true) %}
 # IPv4 local connections:
-host    all             all             127.0.0.1/32            md5
+host    all             all             127.0.0.1/32            {{ postgresql_default_auth_method }}
 {% endif %}
-{% if postgresql_pg_hba_local_ipv6 is not defined or postgresql_pg_hba_local_ipv6 %}
+{% if postgresql_pg_hba_local_ipv6 | default(true) %}
 # IPv6 local connections:
-host    all             all             ::1/128                 md5
+host    all             all             ::1/128                 {{ postgresql_default_auth_method }}
 {% endif %}
 
 # Entries configured in postgresql_pg_hba_conf follow
 {% if postgresql_pg_hba_conf is defined %}
-{% for line in postgresql_pg_hba_conf %} 
+{% for line in postgresql_pg_hba_conf %}
 {{ line }}
 {% endfor %}
 {% endif %}
