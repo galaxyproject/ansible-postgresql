@@ -1,26 +1,29 @@
 ---
 
-- name: APT keyrings directory
-  file:
-    path: "{{ postgresql_apt_keys_dir }}"
-    state: directory
-    mode: 0755
-
-- name: Install pgdg package signing key (Debian/pgdg)
-  get_url:
-    url: "{{ postgresql_pgdg_key_url }}"
-    dest: "{{ postgresql_pgdg_key_dest }}"
-  register: __postgresql_apt_key_result
-  until: __postgresql_apt_key_result is succeeded
-  retries: 5
-  delay: 5
+- name: PGDG block
   when: postgresql_flavor is defined and postgresql_flavor == "pgdg"
+  block:
 
-- name: Install pgdg repository (Debian/pgdg)
-  apt_repository:
-    repo: "{{ postgresql_pgdg_repo }}"
-    update_cache: true
-  when: postgresql_flavor is defined and postgresql_flavor == "pgdg"
+    - name: APT keyrings directory
+      file:
+        path: "{{ postgresql_apt_keys_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Install pgdg package signing key (Debian/pgdg)
+      get_url:
+        url: "{{ postgresql_pgdg_key_url }}"
+        dest: "{{ postgresql_pgdg_key_dest }}"
+        mode: "0644"
+      register: __postgresql_apt_key_result
+      until: __postgresql_apt_key_result is succeeded
+      retries: 5
+      delay: 5
+
+    - name: Install pgdg repository (Debian/pgdg)
+      apt_repository:
+        repo: "{{ postgresql_pgdg_repo }}"
+        update_cache: true
 
 - name: Install PostgreSQL (Debian)
   apt:
