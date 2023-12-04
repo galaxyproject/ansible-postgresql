@@ -33,7 +33,7 @@ __postgresql_pgdg_bin_dir: "{{ '/usr/pgsql-' ~ (postgresql_version | replace('.'
 postgresql_backup_command: >-
   {{ postgresql_backup_local_dir | quote }}/bin/backup.py
   {{ '--rsync-connect-opts ' ~ (postgresql_backup_rsync_connect_opts | quote) if postgresql_backup_rsync_connect_opts else '' }}
-  --rsync-backup-opts {{ postgresql_backup_rsync_backup_opts | quote }}
+  --rsync-backup-opts {{ postgresql_backup_rsync_backup_opts | regex_replace('^-', '\-') | quote }}
   --keep {{ postgresql_backup_keep | quote }}
   {{ '--pg-bin-dir ' ~ __postgresql_pgdg_bin_dir if ansible_os_family == 'RedHat' else '' }}
   --backup --clean-archive {{ postgresql_backup_dir | quote }}
