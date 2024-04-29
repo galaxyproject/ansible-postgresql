@@ -214,7 +214,7 @@ def finalize_backup(backup_path):
     if state.pg_major_version < 15:
         stop_backup_sql = "SELECT * FROM pg_stop_backup(false, true)"
     else:
-        stop_backup_sql = "SELECT * FROM pg_packup_stop(true)"
+        stop_backup_sql = "SELECT * FROM pg_backup_stop(true)"
     state.cursor.execute(stop_backup_sql)
     row = state.cursor.fetchone()
     last_segment = row[0]
