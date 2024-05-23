@@ -36,7 +36,7 @@ postgresql_backup_command: >-
   --rsync-backup-opts {{ postgresql_backup_rsync_backup_opts | regex_replace('^-', '\-') | quote }}
   --keep {{ postgresql_backup_keep | quote }}
   {{ '--pg-bin-dir ' ~ __postgresql_pgdg_bin_dir if ansible_os_family == 'RedHat' else '' }}
-  --backup --clean-archive {{ postgresql_backup_dir | quote }}
+  --backup {{ (':' in postgresql_backup_dir) | ternary('', '--clean-archive') }} {{ postgresql_backup_dir | quote }}
 
 postgresql_backup_python_executable: "python"
 
