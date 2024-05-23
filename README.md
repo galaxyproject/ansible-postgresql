@@ -91,9 +91,21 @@ Role Variables
 
 ### Backups ###
 
-- `postgresql_backup_dir`: If set, enables [PITR][postgresql_pitr] backups. Set this to a directory where your database
-  will be backed up (this can be any format supported by rsync, e.g. `user@host:/path`). The most recent backup will be
-  in a subdirectory named `current`.
+This role can deploy and schedule the configuration and scripts to maintain Postgresql [PITR][postgresql_pitr] backups.
+
+Full backups will be made on the configured interval, whereas write-ahead-log (WAL) segments between full backups will
+be archived to `{{ postgresql_backup_dir }}/wal_archive/` when instructed by the PostgreSQL server. WAL segments can be
+removed from this directory once the oldest backup referencing them has been removed. This is done automatically for you
+by the backup script if `postgresql_backup_dir` is mounted locally.
+
+When `postgresql_backup_dir` is a remote rsync path (containing a "`:`"), the backup script will still maintain backups
+(including deleting older full backups) but cannot prune the `wal_archive/` directory automatically. If you are able to
+install the standard `pg_archivecleanup` utility from the PostgreSQL client package on your backup server, you can run
+this role's backup script with the `--clean-archive` option directly on the backup server instead.
+
+- `postgresql_backup_dir`: If set, enables PITR backups. Set this to a directory where your database will be backed up
+  (this can be any format supported by rsync, e.g. `user@host:/path`). The most recent backup will be in a subdirectory
+  named `current`.
 
 - `postgresql_backup_local_dir`: Filesystem path on the PostgreSQL server where backup scripts will be placed.
 
@@ -122,9 +134,8 @@ Standard install: Default `postgresql.conf`, `pg_hba.conf` and default version f
 ---
 
 - hosts: dbservers
-  remote_user: root
   roles:
-    - postgresql
+    - galaxyproject.postgresql
 ```
 
 Use the pgdg packages on a Debian-based host:
@@ -133,11 +144,10 @@ Use the pgdg packages on a Debian-based host:
 ---
 
 - hosts: dbservers
-  remote_user: root
   vars:
     postgresql_flavor: pgdg
   roles:
-    - postgresql
+    - galaxyproject.postgresql
 ```
 
 Use the PostgreSQL 9.5 packages and set some `postgresql.conf` options and `pg_hba.conf` entries:
@@ -146,7 +156,6 @@ Use the PostgreSQL 9.5 packages and set some `postgresql.conf` options and `pg_h
 ---
 
 - hosts: dbservers
-  remote_user: root
   vars:
     postgresql_version: 9.5
     postgresql_conf:
@@ -155,18 +164,44 @@ Use the PostgreSQL 9.5 packages and set some `postgresql.conf` options and `pg_h
     postgresql_pg_hba_conf:
       - host all all 10.0.0.0/8 md5
   roles:
-    - postgresql
+    - galaxyproject.postgresql
 ```
 
-Enable backups to /archive
+Enable backups to /archive:
 
 ```yaml
 - hosts: all
-  remote_user: root
   vars:
     postgresql_backup_dir: /archive
   roles:
-    - postgresql
+    - galaxyproject.postgresql
+```
+
+Enable backups to /archive on a remote server:
+
+```yaml
+- hosts: dbservers
+  vars:
+    postgresql_backup_dir: backup.example.org:/archive
+  roles:
+    - galaxyproject.postgresql
+
+- hosts: backupservers
+  tasks:
+    - name: Install PostgreSQL scripts
+      ansible.builtin.apt:
+        name: postgresql-common
+    - name: Copy backup script
+      ansible.builtin.copy:
+        src: roles/galaxyproject.postgresql/files/backup.py
+        dest: /usr/local/bin/pgbackup.py
+        mode: "0755"
+    - name: Schedule WAL pruning
+      ansible.builtin.cron:
+        name: Prune PostgreSQL Archived WALs
+        hour: 22
+        minute: 0
+        job: /usr/local/bin/pgbackup.py --clean-archive /archive
 ```
 
 License
