@@ -31,11 +31,13 @@ postgresql_backup_keep: 30
 
 __postgresql_pgdg_bin_dir: "{{ '/usr/pgsql-' ~ (postgresql_version | replace('.', '')) ~ '/bin' }}"
 postgresql_backup_command: >-
-  {{ postgresql_backup_local_dir | quote }}/bin/backup.py
+  {{ postgresql_backup_python_executable }} {{ postgresql_backup_local_dir | quote }}/bin/backup.py
   {{ '--rsync-connect-opts ' ~ (postgresql_backup_rsync_connect_opts | quote) if postgresql_backup_rsync_connect_opts else '' }}
   --rsync-backup-opts {{ postgresql_backup_rsync_backup_opts | regex_replace('^-', '\-') | quote }}
   --keep {{ postgresql_backup_keep | quote }}
   {{ '--pg-bin-dir ' ~ __postgresql_pgdg_bin_dir if ansible_os_family == 'RedHat' else '' }}
   --backup --clean-archive {{ postgresql_backup_dir | quote }}
+
+postgresql_backup_python_executable: "python"
 
 postgresql_default_auth_method: "{{ (postgresql_version is version('13', '>')) | ternary('scram-sha-256', 'md5') }}"

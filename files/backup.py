@@ -109,7 +109,7 @@ class State(object):
     def rsync_cmd(self):
         cmd = ['rsync']
         if self._rsync_opts:
-            cmd.extend(shlex.split(rsync_opts))
+            cmd.extend(shlex.split(self._rsync_opts))
         return cmd
 
     @property
