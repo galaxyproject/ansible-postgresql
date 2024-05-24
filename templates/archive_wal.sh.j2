@@ -13,10 +13,16 @@ wal_archive_dir={{ (postgresql_backup_dir ~ '/wal_archive') | quote }}
 file_path="$1"
 file_name="$2"
 
+{% if postgresql_backup_dir_is_remote %}
+empty=$(mktemp -d -t ansible-postgresql-empty.XXXXXX)
+rsync {{ postgresql_backup_rsync_connect_opts }} "${empty}/" "$wal_archive_dir"
+rmdir "$empty"
+{% else %}
 mkdir -p "$wal_archive_dir"
+{% endif %}
 
 # If rsync outputs anything to stdout, the destination already existed, which should not happen
-if [ -n "$(rsync {{ postgresql_archive_wal_rsync_args }} "$file_path" "$wal_archive_dir")" ]; then
+if [ -n "$(rsync {{ postgresql_backup_rsync_connect_opts }} {{ postgresql_archive_wal_rsync_args }} "$file_path" "$wal_archive_dir")" ]; then
     echo "ERROR: ${wal_archive_dir}/${file_name} already exists, overwriting is not allowed!"
     exit 1
 fi

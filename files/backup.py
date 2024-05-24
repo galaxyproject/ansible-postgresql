@@ -30,7 +30,10 @@ try:
 except ImportError:
     from pipes import quote as shlex_quote
 
-import psycopg2
+try:
+    import psycopg2
+except ImportError:
+    psycopg2 = None
 
 
 RSYNC_EXCLUDES = (
@@ -109,7 +112,7 @@ class State(object):
     def rsync_cmd(self):
         cmd = ['rsync']
         if self._rsync_opts:
-            cmd.extend(shlex.split(rsync_opts))
+            cmd.extend(shlex.split(self._rsync_opts))
         return cmd
 
     @property
@@ -147,6 +150,8 @@ def parse_args(argv):
     parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Verbose output')
     parser.add_argument('backup_path', help='Backup to location (rsync-compatible string)')
     args = parser.parse_args(argv)
+    if args.backup and psycopg2 is None:
+        parser.error('--backup specified but psycopg2 could not be imported')
     if args.clean_archive and ':' in args.backup_path:
         parser.error('--clean-archive cannot be used with remote backup directories')
     return args
