@@ -18,7 +18,7 @@
     mode: 0750
     state: directory
     path: "{{ postgresql_backup_dir }}"
-  when: postgresql_backup_dir[0] == '/' and postgresql_create_backup_dir
+  when: not postgresql_backup_dir_is_remote and postgresql_create_backup_dir
 
 - name: Install backup script templates
   template:

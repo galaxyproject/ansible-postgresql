@@ -17,6 +17,9 @@ postgresql_backup_local_dir: >-
       '/var/lib/postgresql' if ansible_os_family == 'Debian' else '~postgres') }}/backup
 postgresql_create_backup_dir: true
 
+# Controls whether the wal_archive directory is cleaned and whether postgresql_create_backup_dir can be used
+postgresql_backup_dir_is_remote: "{{ postgresql_backup_dir[0] != '/' }}"
+
 # Options used for the WAL archive command - do not change this unless you have read the PITR documentation and
 # understand how this command must work.
 postgresql_archive_wal_rsync_args: '--ignore-existing -ptg --info=skip1'
@@ -36,7 +39,7 @@ postgresql_backup_command: >-
   --rsync-backup-opts {{ postgresql_backup_rsync_backup_opts | regex_replace('^-', '\-') | quote }}
   --keep {{ postgresql_backup_keep | quote }}
   {{ '--pg-bin-dir ' ~ __postgresql_pgdg_bin_dir if ansible_os_family == 'RedHat' else '' }}
-  --backup {{ (':' in postgresql_backup_dir) | ternary('', '--clean-archive') }} {{ postgresql_backup_dir | quote }}
+  --backup {{ postgresql_backup_dir_is_remote | ternary('', '--clean-archive') }} {{ postgresql_backup_dir | quote }}
 
 postgresql_backup_python_executable: "python"
 
