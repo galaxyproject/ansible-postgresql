@@ -13,9 +13,14 @@
   register: __postgresql_repo_pkg_installed_result
   ignore_errors: true
 
-- name: Install repository key
+- name: Install repository key (PostgreSQL v10 and below)
   rpm_key:
     key: https://download.postgresql.org/pub/repos/yum/keys/RPM-GPG-KEY-PGDG
+    state: present
+
+- name: Install repository key (PostgreSQL v11 and above)
+  rpm_key:
+    key: https://download.postgresql.org/pub/repos/yum/keys/PGDG-RPM-GPG-KEY-RHEL
     state: present
 
 - name: Install pgdg repository package (RedHat)
