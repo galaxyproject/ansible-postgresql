@@ -33,15 +33,31 @@
   retries: 5
   delay: 5
 
+- name: Temp file for check mode
+  set_fact:
+    __temp_file_for_check_mode: "/tmp/galaxyproject_postgresql_get_installed_version_trick"
+
+- name: Create temp file for check_mode
+  ansible.builtin.copy:
+    content: ""
+    dest: "{{ __temp_file_for_check_mode }}"
+    force: yes
+    mode: '0777'
+  check_mode: no
+
 - name: Get installed version
-  command: dpkg-query -f ${Version;3} --show postgresql
+  shell: "dpkg-query -f '${Version;3}' --show postgresql"
   when: postgresql_version is not defined
   register: __postgresql_version_query_result
   changed_when: false
+  check_mode: no
+  args:
+    # Using this in order to enforce the task to be executed in check mode
+    removes: "{{ __temp_file_for_check_mode }}"
 
 - name: Set version fact
   set_fact:
-    postgresql_version: "{{ __postgresql_version_query_result.stdout.split('+') | first }}"
+    postgresql_version: "{{ __postgresql_version_query_result.stdout.split('+') | first | string }}"
   when: postgresql_version is not defined
 
 - name: Install psycopg2
