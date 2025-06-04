@@ -6,6 +6,11 @@ postgresql_pgdg_key_url: "https://www.postgresql.org/media/keys/ACCC4CF8.asc"
 postgresql_pgdg_repo: "deb [signed-by={{ postgresql_pgdg_key_dest }}] http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
 
 postgresql_default_version: 15
+
+# Galaxy times are in UTC but postgresql can come preconfigured for a different TZ, https://github.com/galaxyproject/galaxy/issues/16021
+postgresql_conf:
+  - timezone: "UTC"
+
 postgresql_user_name: postgres
 
 postgresql_install_psycopg2: true
