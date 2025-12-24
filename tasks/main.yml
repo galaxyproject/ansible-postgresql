@@ -77,7 +77,7 @@
     group: "{{ postgresql_user_name }}"
     mode: 0644
     backup: true
-  notify: Reload PostgreSQL
+  notify: Restart PostgreSQL
 
 - name: Install pg_hba.conf
   template:
