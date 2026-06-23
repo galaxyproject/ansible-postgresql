@@ -2,4 +2,8 @@
 
 postgresql_pgdata_default: /var/lib/postgresql/{{ postgresql_version }}/main
 postgresql_conf_dir_default: /etc/postgresql/{{ postgresql_version }}/main
-postgresql_service_name: postgresql
+# Target the version-specific cluster unit rather than the "postgresql" meta-service. The meta-service is a oneshot
+# that is already active when another cluster (e.g. an existing 15/main) is running, so `state=started` against it is
+# a no-op and would not start this cluster; `state=reloaded` against it would also reload every cluster on the host.
+# Using postgresql@<version>-main starts/reloads only this cluster, which is what we want for side-by-side installs.
+postgresql_service_name: "postgresql@{{ postgresql_version }}-main"

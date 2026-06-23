@@ -48,3 +48,8 @@
   apt:
     name: "python{{ (ansible_python.version.major == 3) | ternary('3', '') }}-psycopg2"
   when: postgresql_install_psycopg2
+
+- name: Ensure the PostgreSQL cluster exists (Debian)
+  command:
+    cmd: "pg_createcluster {{ postgresql_version }} main"
+    creates: "/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
